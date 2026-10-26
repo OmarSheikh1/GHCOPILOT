@@ -3,6 +3,20 @@ const MONTHS = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
 ];
+const DEFAULT_BUDGET_DATA = [
+    { income: 5200, expenses: 3850 },
+    { income: 5200, expenses: 3925 },
+    { income: 5450, expenses: 4010 },
+    { income: 5200, expenses: 3780 },
+    { income: 5600, expenses: 4250 },
+    { income: 5200, expenses: 4100 },
+    { income: 5800, expenses: 4390 },
+    { income: 5200, expenses: 3975 },
+    { income: 5350, expenses: 4050 },
+    { income: 5200, expenses: 4325 },
+    { income: 6100, expenses: 4680 },
+    { income: 6500, expenses: 5200 }
+];
 const currencyFormatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -40,16 +54,7 @@ async function loadBudgetData() {
         console.warn('Saved budget data could not be read; loading sample data.', error);
     }
 
-    const response = await fetch('sample-data.json');
-    if (!response.ok) {
-        throw new Error(`Could not load the sample data (${response.status}).`);
-    }
-
-    const sampleData = await response.json();
-    if (!isValidBudget(sampleData)) {
-        throw new Error('The sample data must contain income and expense values for all 12 months.');
-    }
-    return sampleData;
+    return loadSampleData();
 }
 
 function renderRows() {
@@ -235,6 +240,10 @@ function attachEvents() {
 }
 
 async function loadSampleData() {
+    if (window.location.protocol === 'file:') {
+        return DEFAULT_BUDGET_DATA.map((month) => ({ ...month }));
+    }
+
     const response = await fetch('sample-data.json');
     if (!response.ok) {
         throw new Error(`Could not reload the sample data (${response.status}).`);
@@ -259,7 +268,7 @@ async function initializeApp() {
             console.error(error);
         }
     } catch (error) {
-        showError(`Unable to start Bucks2Bar: ${error.message} Serve this folder over HTTP and try again.`);
+        showError(`Unable to start Bucks2Bar: ${error.message}`);
         console.error(error);
     }
 }
